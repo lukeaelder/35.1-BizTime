@@ -2,6 +2,7 @@ const express = require('express');
 const router = new express.Router();
 const db = require('../db')
 const ExpressError = require('../expressError')
+const slugify = require('slugify')
 
 router.get('/', async (req, res, next) => {
     try {
@@ -34,7 +35,7 @@ router.post('/', async (req, res, next) => {
             `INSERT INTO companies (code, name, description)
                 VALUES ($1, $2, $3)
                 RETURNING code, name, description`,
-                [code, name, description]);
+                [slugify(code), name, description]);
         return res.status(201).json({company: results.rows[0]});
     } catch(e) {
         return next(e);
@@ -53,7 +54,7 @@ router.put('/:code', async (req, res, next) => {
         if (results.rows.length === 0){
             throw new ExpressError(`No company found with code of ${req.params.code}`, 404)
         }
-        return res.json({comapny: results.rows[0]});
+        return res.json({company: results.rows[0]});
     } catch(e) {
         return next(e);
     }
